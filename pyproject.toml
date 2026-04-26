@@ -1,0 +1,40 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ml-platform-toolkit"
+version = "0.1.0"
+description = "Internal ML engineering toolkit for standardized training, evaluation, tracking, and project scaffolding"
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "Proprietary"}
+authors = [{name = "Internal Platform Team"}]
+keywords = ["ml", "platform", "training", "evaluation", "experiments", "cli"]
+dependencies = []
+
+[project.optional-dependencies]
+dev = ["pre-commit>=3.7.0", "ruff>=0.6.0"]
+
+[project.scripts]
+ml = "ml_platform.cli:main"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+ml_platform = ["py.typed"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
