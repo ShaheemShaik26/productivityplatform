@@ -27,7 +27,9 @@ class EvaluationEngine:
 
         matrix = self._confusion_matrix(y_true, y_pred, label_values)
         precision_macro, recall_macro, f1_macro = self._macro_metrics(matrix)
-        accuracy = sum(int(true == pred) for true, pred in zip(y_true, y_pred)) / max(len(y_true), 1)
+        accuracy = sum(
+            int(true == pred) for true, pred in zip(y_true, y_pred, strict=False)
+        ) / max(len(y_true), 1)
         latency = self._latency_summary(latencies_ms) if latencies_ms is not None else None
         return ClassificationReport(
             labels=list(labels),
@@ -40,7 +42,12 @@ class EvaluationEngine:
             metadata=metadata or {},
         )
 
-    def benchmark_latency(self, fn: Callable[[], Any], samples: int = 100, warmup: int = 10) -> LatencySummary:
+    def benchmark_latency(
+        self,
+        fn: Callable[[], Any],
+        samples: int = 100,
+        warmup: int = 10,
+    ) -> LatencySummary:
         durations: list[float] = []
         for _ in range(warmup):
             fn()
@@ -50,10 +57,15 @@ class EvaluationEngine:
             durations.append((perf_counter() - started) * 1000.0)
         return self._latency_summary(durations)
 
-    def _confusion_matrix(self, y_true: Sequence[int], y_pred: Sequence[int], label_values: Sequence[int]) -> list[list[int]]:
+    def _confusion_matrix(
+        self,
+        y_true: Sequence[int],
+        y_pred: Sequence[int],
+        label_values: Sequence[int],
+    ) -> list[list[int]]:
         index_by_label = {label: index for index, label in enumerate(label_values)}
         matrix = [[0 for _ in label_values] for _ in label_values]
-        for true_label, predicted_label in zip(y_true, y_pred):
+        for true_label, predicted_label in zip(y_true, y_pred, strict=False):
             matrix[index_by_label[true_label]][index_by_label[predicted_label]] += 1
         return matrix
 
@@ -63,7 +75,11 @@ class EvaluationEngine:
         f1_scores: list[float] = []
         for index, row in enumerate(matrix):
             tp = row[index]
-            fp = sum(matrix[row_index][index] for row_index in range(len(matrix)) if row_index != index)
+            fp = sum(
+                matrix[row_index][index]
+                for row_index in range(len(matrix))
+                if row_index != index
+            )
             fn = sum(value for column_index, value in enumerate(row) if column_index != index)
             precision = tp / max(tp + fp, 1)
             recall = tp / max(tp + fn, 1)
@@ -71,7 +87,11 @@ class EvaluationEngine:
             precisions.append(precision)
             recalls.append(recall)
             f1_scores.append(f1)
-        return mean(precisions) if precisions else 0.0, mean(recalls) if recalls else 0.0, mean(f1_scores) if f1_scores else 0.0
+        return (
+            mean(precisions) if precisions else 0.0,
+            mean(recalls) if recalls else 0.0,
+            mean(f1_scores) if f1_scores else 0.0,
+        )
 
     def _latency_summary(self, latencies_ms: Iterable[float]) -> LatencySummary:
         samples = sorted(float(value) for value in latencies_ms)

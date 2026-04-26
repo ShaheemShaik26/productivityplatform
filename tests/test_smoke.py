@@ -1,22 +1,22 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
-from pathlib import Path
-from tempfile import TemporaryDirectory
 import sys
 import unittest
 from contextlib import redirect_stdout
+from dataclasses import dataclass
 from io import StringIO
+from pathlib import Path
+from tempfile import TemporaryDirectory
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
+from ml_platform.cli import main as cli_main
 from ml_platform.core.config import ExperimentConfig
 from ml_platform.data.loader import TransformPipeline
 from ml_platform.evaluation.engine import EvaluationEngine
+from ml_platform.scaffold import create_project_scaffold
 from ml_platform.tracking.models import RunRecord
 from ml_platform.tracking.store import LocalRunStore
-from ml_platform.cli import main as cli_main
-from ml_platform.scaffold import create_project_scaffold
 
 
 @dataclass
@@ -50,7 +50,12 @@ class ToolkitSmokeTest(unittest.TestCase):
 
     def test_evaluation_report_generation(self) -> None:
         engine = EvaluationEngine()
-        report = engine.classification_report([0, 1, 1], [0, 1, 0], labels=["zero", "one"], latencies_ms=[1.0, 2.0, 3.0])
+        report = engine.classification_report(
+            [0, 1, 1],
+            [0, 1, 0],
+            labels=["zero", "one"],
+            latencies_ms=[1.0, 2.0, 3.0],
+        )
         self.assertAlmostEqual(report.accuracy, 2 / 3)
         self.assertEqual(report.confusion_matrix, [[1, 0], [1, 1]])
         self.assertIsNotNone(report.latency)

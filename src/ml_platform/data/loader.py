@@ -22,7 +22,10 @@ class MaterializedDataset:
 class TransformPipeline:
     """Reusable preprocessing pipeline for datasets."""
 
-    def __init__(self, steps: Iterable[Callable[[Any], Any] | SupportsTransform[Any]] | None = None) -> None:
+    def __init__(
+        self,
+        steps: Iterable[Callable[[Any], Any] | SupportsTransform[Any]] | None = None,
+    ) -> None:
         self.steps = list(steps or [])
 
     def fit(self, data: Any) -> "TransformPipeline":
@@ -61,7 +64,11 @@ class DatasetLoader(ABC):
 
     def load(self, split: str = "train") -> MaterializedDataset:
         raw = self.load_raw(split)
-        processed = self.pipeline.fit_transform(raw) if split == "train" else self.pipeline.transform(raw)
+        processed = (
+            self.pipeline.fit_transform(raw)
+            if split == "train"
+            else self.pipeline.transform(raw)
+        )
         return self.materialize(processed, split)
 
     @abstractmethod

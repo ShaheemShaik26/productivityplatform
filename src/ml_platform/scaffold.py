@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
-from pathlib import Path
 import re
 import textwrap
+from dataclasses import dataclass
+from pathlib import Path
 
 
 @dataclass(slots=True)
@@ -23,7 +23,11 @@ def module_name_for(project_name: str) -> str:
     return slugify_project_name(project_name).replace("-", "_")
 
 
-def create_project_scaffold(project_name: str, destination_dir: str | Path | None = None, overwrite: bool = False) -> ScaffoldResult:
+def create_project_scaffold(
+    project_name: str,
+    destination_dir: str | Path | None = None,
+    overwrite: bool = False,
+) -> ScaffoldResult:
     module_name = module_name_for(project_name)
     project_dir = Path(destination_dir or Path.cwd()) / slugify_project_name(project_name)
     if project_dir.exists() and not overwrite:
@@ -38,7 +42,12 @@ def create_project_scaffold(project_name: str, destination_dir: str | Path | Non
         absolute_path.write_text(content, encoding="utf-8")
         created.append(absolute_path)
 
-    return ScaffoldResult(project_name=project_name, module_name=module_name, root_dir=project_dir, created_files=created)
+    return ScaffoldResult(
+        project_name=project_name,
+        module_name=module_name,
+        root_dir=project_dir,
+        created_files=created,
+    )
 
 
 def _project_files(project_name: str, module_name: str) -> dict[str, str]:
@@ -129,7 +138,9 @@ def _project_files(project_name: str, module_name: str) -> dict[str, str]:
                 import torch
                 from torch import nn
             except Exception as exc:  # pragma: no cover - template fallback
-                raise RuntimeError("This project template expects PyTorch to be installed.") from exc
+                raise RuntimeError(
+                    "This project template expects PyTorch to be installed."
+                ) from exc
 
 
             class BinaryClassifier(nn.Module):
@@ -147,14 +158,16 @@ def _project_files(project_name: str, module_name: str) -> dict[str, str]:
         ).strip()
         + "\n",
         f"src/{module_name}/trainer.py": textwrap.dedent(
-            f"""
+            """
             from __future__ import annotations
 
             try:
                 import torch
                 from torch import nn
             except Exception as exc:  # pragma: no cover - template fallback
-                raise RuntimeError("This project template expects PyTorch to be installed.") from exc
+                raise RuntimeError(
+                    "This project template expects PyTorch to be installed."
+                ) from exc
 
             from ml_platform.core.config import ExperimentConfig
             from ml_platform.training.base import BaseTrainer
@@ -200,7 +213,7 @@ def _project_files(project_name: str, module_name: str) -> dict[str, str]:
         ).strip()
         + "\n",
         f"src/{module_name}/train.py": textwrap.dedent(
-            f"""
+            """
             from __future__ import annotations
 
             import argparse
@@ -236,7 +249,10 @@ def _project_files(project_name: str, module_name: str) -> dict[str, str]:
                 metrics = train(config)
                 output_path = Path(args.output)
                 output_path.parent.mkdir(parents=True, exist_ok=True)
-                output_path.write_text(json.dumps(metrics, indent=2, sort_keys=True), encoding="utf-8")
+                output_path.write_text(
+                    json.dumps(metrics, indent=2, sort_keys=True),
+                    encoding="utf-8",
+                )
                 print(output_path)
 
 
@@ -280,7 +296,10 @@ def _project_files(project_name: str, module_name: str) -> dict[str, str]:
                 report = evaluate(config)
                 output_path = Path(args.output)
                 output_path.parent.mkdir(parents=True, exist_ok=True)
-                output_path.write_text(json.dumps(report, indent=2, sort_keys=True), encoding="utf-8")
+                output_path.write_text(
+                    json.dumps(report, indent=2, sort_keys=True),
+                    encoding="utf-8",
+                )
                 print(output_path)
 
 
@@ -341,8 +360,12 @@ def _project_files(project_name: str, module_name: str) -> dict[str, str]:
                       python-version: "3.11"
                   - run: pip install .
                   - run: python -m unittest discover -s tests
-                  - run: python -m {module_name}.train --config configs/training.json --output artifacts/train_metrics.json
-                  - run: python -m {module_name}.evaluate --config configs/evaluation.json --output artifacts/evaluation_report.json
+                  - run: >
+                      python -m {module_name}.train --config configs/training.json
+                      --output artifacts/train_metrics.json
+                  - run: >
+                      python -m {module_name}.evaluate --config configs/evaluation.json
+                      --output artifacts/evaluation_report.json
             """
         ).strip()
         + "\n",

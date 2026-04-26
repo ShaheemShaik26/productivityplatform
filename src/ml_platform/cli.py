@@ -5,8 +5,8 @@ import json
 import sys
 from pathlib import Path
 
-from .tracking.store import LocalRunStore, SQLiteRunStore
 from .scaffold import create_project_scaffold
+from .tracking.store import LocalRunStore, SQLiteRunStore
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -15,8 +15,16 @@ def build_parser() -> argparse.ArgumentParser:
 
     init_parser = subparsers.add_parser("init", help="Generate a new ML project scaffold")
     init_parser.add_argument("project_name", help="Name of the new project")
-    init_parser.add_argument("--destination", default=str(Path.cwd()), help="Directory where the project should be created")
-    init_parser.add_argument("--overwrite", action="store_true", help="Overwrite an existing project directory")
+    init_parser.add_argument(
+        "--destination",
+        default=str(Path.cwd()),
+        help="Directory where the project should be created",
+    )
+    init_parser.add_argument(
+        "--overwrite",
+        action="store_true",
+        help="Overwrite an existing project directory",
+    )
 
     runs_parser = subparsers.add_parser("runs", help="Inspect and compare tracked experiments")
     runs_subparsers = runs_parser.add_subparsers(dest="runs_command", required=True)
@@ -33,9 +41,22 @@ def build_parser() -> argparse.ArgumentParser:
 
 
 def _add_store_arguments(parser: argparse.ArgumentParser) -> None:
-    parser.add_argument("--store", choices=("local", "sqlite"), default="local", help="Tracking backend to use")
-    parser.add_argument("--run-dir", default=".ml_runs", help="Directory for local JSON run storage")
-    parser.add_argument("--db-path", default=".ml_runs/runs.sqlite3", help="SQLite database path")
+    parser.add_argument(
+        "--store",
+        choices=("local", "sqlite"),
+        default="local",
+        help="Tracking backend to use",
+    )
+    parser.add_argument(
+        "--run-dir",
+        default=".ml_runs",
+        help="Directory for local JSON run storage",
+    )
+    parser.add_argument(
+        "--db-path",
+        default=".ml_runs/runs.sqlite3",
+        help="SQLite database path",
+    )
 
 
 def _build_store(args: argparse.Namespace) -> LocalRunStore | SQLiteRunStore:

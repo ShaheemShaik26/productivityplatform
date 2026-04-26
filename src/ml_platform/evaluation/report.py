@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-from dataclasses import dataclass, field, asdict
+import json
+from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Any
-import json
 
 
 @dataclass(slots=True)
@@ -35,7 +35,10 @@ class ClassificationReport:
     def save_json(self, path: str | Path) -> Path:
         destination = Path(path)
         destination.parent.mkdir(parents=True, exist_ok=True)
-        destination.write_text(json.dumps(self.to_dict(), indent=2, sort_keys=True), encoding="utf-8")
+        destination.write_text(
+            json.dumps(self.to_dict(), indent=2, sort_keys=True),
+            encoding="utf-8",
+        )
         return destination
 
     def to_markdown(self) -> str:
@@ -52,7 +55,7 @@ class ClassificationReport:
         header = "| label | " + " | ".join(self.labels) + " |"
         separator = "|---" * (len(self.labels) + 1) + "|"
         lines.extend([header, separator])
-        for label, row in zip(self.labels, self.confusion_matrix):
+        for label, row in zip(self.labels, self.confusion_matrix, strict=False):
             lines.append("| " + label + " | " + " | ".join(str(value) for value in row) + " |")
         if self.latency is not None:
             lines.extend(

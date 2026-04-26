@@ -38,7 +38,11 @@ class BaseTrainer(ABC):
         self.tracker = tracker
         self.state: dict[str, Any] = {}
 
-    def fit(self, train_loader: Iterable[Any], val_loader: Iterable[Any] | None = None) -> TrainingResult:
+    def fit(
+        self,
+        train_loader: Iterable[Any],
+        val_loader: Iterable[Any] | None = None,
+    ) -> TrainingResult:
         seed_everything(self.config.seed)
         started = perf_counter()
         run = self._create_run_record()
@@ -53,7 +57,13 @@ class BaseTrainer(ABC):
             if val_loader is not None:
                 metrics.update(self.evaluate_epoch(val_loader, epoch_index))
             duration = perf_counter() - epoch_started
-            epochs.append(EpochResult(epoch=epoch_index + 1, metrics=metrics, duration_seconds=duration))
+            epochs.append(
+                EpochResult(
+                    epoch=epoch_index + 1,
+                    metrics=metrics,
+                    duration_seconds=duration,
+                )
+            )
             last_metrics = metrics
             self.after_epoch(epoch_index + 1, metrics)
 
@@ -62,18 +72,30 @@ class BaseTrainer(ABC):
         run.runtime_seconds = runtime_seconds
         if self.tracker is not None:
             self.tracker.save_run(run)
-        return TrainingResult(run=run, epochs=epochs, metrics=last_metrics, runtime_seconds=runtime_seconds)
+        return TrainingResult(
+            run=run,
+            epochs=epochs,
+            metrics=last_metrics,
+            runtime_seconds=runtime_seconds,
+        )
 
     def train_epoch(self, train_loader: Iterable[Any], epoch_index: int) -> dict[str, float]:
-        return self._aggregate_batch_metrics(self.train_step(batch, epoch_index) for batch in train_loader)
+        return self._aggregate_batch_metrics(
+            self.train_step(batch, epoch_index) for batch in train_loader
+        )
 
     def evaluate_epoch(self, val_loader: Iterable[Any], epoch_index: int) -> dict[str, float]:
-        return self._aggregate_batch_metrics(self.evaluate_step(batch, epoch_index) for batch in val_loader)
+        return self._aggregate_batch_metrics(
+            self.evaluate_step(batch, epoch_index) for batch in val_loader
+        )
 
     def after_epoch(self, epoch: int, metrics: Mapping[str, float]) -> None:
         del epoch, metrics
 
-    def _aggregate_batch_metrics(self, batch_metrics: Iterable[Mapping[str, float]]) -> dict[str, float]:
+    def _aggregate_batch_metrics(
+        self,
+        batch_metrics: Iterable[Mapping[str, float]],
+    ) -> dict[str, float]:
         totals: dict[str, float] = {}
         counts: dict[str, int] = {}
         for metrics in batch_metrics:

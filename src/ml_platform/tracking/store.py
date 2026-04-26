@@ -1,10 +1,10 @@
 from __future__ import annotations
 
+import json
+import sqlite3
 from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import Iterable
-import json
-import sqlite3
 
 from .models import RunComparison, RunComparisonRow, RunRecord
 
@@ -99,7 +99,18 @@ class SQLiteRunStore(RunStore):
             connection.execute(
                 """
                 INSERT OR REPLACE INTO runs
-                (run_id, project_name, experiment_name, created_at, seed, config_json, metrics_json, runtime_seconds, status, tags_json)
+                (
+                    run_id,
+                    project_name,
+                    experiment_name,
+                    created_at,
+                    seed,
+                    config_json,
+                    metrics_json,
+                    runtime_seconds,
+                    status,
+                    tags_json
+                )
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
                 (
