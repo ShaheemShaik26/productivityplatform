@@ -36,6 +36,7 @@ In VS Code, the same checks are available as tasks under `Terminal > Run Task`.
 The current codebase has been verified locally with:
 
 - `ruff check src tests`
+- `ruff format --check src tests`
 - `python -m compileall src`
 - `python -m unittest discover -s tests`
 

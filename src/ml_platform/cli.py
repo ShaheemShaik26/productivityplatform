@@ -68,7 +68,9 @@ def _build_store(args: argparse.Namespace) -> LocalRunStore | SQLiteRunStore:
 def _print_run_row(run) -> None:
     metrics = json.dumps(run.metrics, sort_keys=True)
     tags = ",".join(run.tags) if run.tags else "-"
-    print(f"{run.run_id}\t{run.project_name}\t{run.experiment_name}\t{run.status}\t{run.runtime_seconds:.3f}\t{metrics}\t{tags}")
+    print(
+        f"{run.run_id}\t{run.project_name}\t{run.experiment_name}\t{run.status}\t{run.runtime_seconds:.3f}\t{metrics}\t{tags}"
+    )
 
 
 def handle_init(args: argparse.Namespace) -> int:

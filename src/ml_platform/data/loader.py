@@ -8,8 +8,7 @@ T = TypeVar("T")
 
 
 class SupportsTransform(Protocol[T]):
-    def transform(self, data: T) -> T:
-        ...
+    def transform(self, data: T) -> T: ...
 
 
 @dataclass(slots=True)
@@ -65,9 +64,7 @@ class DatasetLoader(ABC):
     def load(self, split: str = "train") -> MaterializedDataset:
         raw = self.load_raw(split)
         processed = (
-            self.pipeline.fit_transform(raw)
-            if split == "train"
-            else self.pipeline.transform(raw)
+            self.pipeline.fit_transform(raw) if split == "train" else self.pipeline.transform(raw)
         )
         return self.materialize(processed, split)
 

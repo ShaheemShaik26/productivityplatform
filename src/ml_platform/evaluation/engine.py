@@ -27,9 +27,9 @@ class EvaluationEngine:
 
         matrix = self._confusion_matrix(y_true, y_pred, label_values)
         precision_macro, recall_macro, f1_macro = self._macro_metrics(matrix)
-        accuracy = sum(
-            int(true == pred) for true, pred in zip(y_true, y_pred, strict=False)
-        ) / max(len(y_true), 1)
+        accuracy = sum(int(true == pred) for true, pred in zip(y_true, y_pred, strict=False)) / max(
+            len(y_true), 1
+        )
         latency = self._latency_summary(latencies_ms) if latencies_ms is not None else None
         return ClassificationReport(
             labels=list(labels),
@@ -76,9 +76,7 @@ class EvaluationEngine:
         for index, row in enumerate(matrix):
             tp = row[index]
             fp = sum(
-                matrix[row_index][index]
-                for row_index in range(len(matrix))
-                if row_index != index
+                matrix[row_index][index] for row_index in range(len(matrix)) if row_index != index
             )
             fn = sum(value for column_index, value in enumerate(row) if column_index != index)
             precision = tp / max(tp + fp, 1)
